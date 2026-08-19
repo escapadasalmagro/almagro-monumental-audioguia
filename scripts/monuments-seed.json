@@ -10,17 +10,17 @@
     "latitude": 38.8883,
     "longitude": -3.71187,
     "visitDurationMinutes": 45,
-    "image": "https://drive.google.com/thumbnail?id=1hWsRq--BfdNJ_PagbXHd1mJjWC5zXD66&sz=w1200",
-    "thumbnail": "https://drive.google.com/thumbnail?id=1hWsRq--BfdNJ_PagbXHd1mJjWC5zXD66&sz=w400",
+    "image": "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=85",
+    "thumbnail": "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=400&q=80",
     "shortDescription": "El único corral de comedias del Siglo de Oro conservado intacto.",
     "historyTextEs": "El Corral de Comedias de Almagro es un teatro histórico del siglo XVII, el único que se conserva íntegro de esa época. Declarado Monumento Nacional, sigue acogiendo representaciones teatrales, especialmente durante el Festival Internacional de Teatro Clásico de Almagro.",
     "audio": {
-      "es": "/audio/corral/es.mp3",
-      "en": "/audio/corral/en.mp3",
-      "fr": "/audio/corral/fr.mp3",
-      "it": "/audio/corral/it.mp3",
-      "de": "/audio/corral/de.mp3",
-      "zh": "/audio/corral/zh.mp3"
+      "es": null,
+      "en": null,
+      "fr": null,
+      "it": null,
+      "de": null,
+      "zh": null
     }
   },
   "iglesia-san-agustin": {
@@ -34,17 +34,17 @@
     "latitude": 38.88912,
     "longitude": -3.71123,
     "visitDurationMinutes": 35,
-    "image": "https://drive.google.com/thumbnail?id=17hgohdxbFFFDLhIiLGvo9a8SV-Gl_NQv&sz=w1200",
-    "thumbnail": "https://drive.google.com/thumbnail?id=17hgohdxbFFFDLhIiLGvo9a8SV-Gl_NQv&sz=w400",
+    "image": "https://images.unsplash.com/photo-1548625361-195feee15f8b?auto=format&fit=crop&w=1200&q=85",
+    "thumbnail": "https://images.unsplash.com/photo-1548625361-195feee15f8b?auto=format&fit=crop&w=400&q=80",
     "shortDescription": "Antiguo convento agustino con una impresionante arquitectura barroca.",
     "historyTextEs": "La Iglesia de San Agustín, de estilo barroco con influencias clasicistas, fue parte del antiguo convento de los Agustinos. Destaca por su imponente fachada y su retablo mayor. Actualmente, alberga eventos culturales y exposiciones.",
     "audio": {
-      "es": "/audio/san-agustin/es.mp3",
-      "en": "/audio/san-agustin/en.mp3",
-      "fr": "/audio/san-agustin/fr.mp3",
-      "it": "/audio/san-agustin/it.mp3",
-      "de": "/audio/san-agustin/de.mp3",
-      "zh": "/audio/san-agustin/zh.mp3"
+      "es": null,
+      "en": null,
+      "fr": null,
+      "it": null,
+      "de": null,
+      "zh": null
     }
   },
   "convento-asuncion": {
@@ -63,12 +63,12 @@
     "shortDescription": "Uno de los grandes ejemplos del Renacimiento en Almagro.",
     "historyTextEs": "El Claustro del Convento de la Asunción de Calatrava es una joya del Renacimiento español. Formaba parte de un importante convento fundado por la Orden de Calatrava. Sus dos plantas de galerías con arcos de medio punto sobre columnas de mármol son de gran belleza.",
     "audio": {
-      "es": "/audio/claustro/es.mp3",
-      "en": "/audio/claustro/en.mp3",
-      "fr": "/audio/claustro/fr.mp3",
-      "it": "/audio/claustro/it.mp3",
-      "de": "/audio/claustro/de.mp3",
-      "zh": "/audio/claustro/zh.mp3"
+      "es": null,
+      "en": null,
+      "fr": null,
+      "it": null,
+      "de": null,
+      "zh": null
     }
   },
   "palacio-fucares": {
@@ -88,12 +88,12 @@
     "shortDescription": "Un destacado ejemplo de arquitectura civil almagreña del siglo XVI.",
     "historyTextEs": "La Casa Palacio de los Jedler, conocida también como Palacio de los Fúcares, es un notable ejemplo de la arquitectura civil del siglo XVI, construida por una familia de banqueros alemanes. Presenta una fachada sobria y un patio interior con elementos góticos y renacentistas.",
     "audio": {
-      "es": "/audio/palacio-fucares/FUCARES_01_SPAIN.mp3",
-      "en": "/audio/palacio-fucares/FUCARES_01_INGLES.mp3",
-      "fr": "/audio/palacio-fucares/FUCARES_01_FRANCES.mp3",
-      "it": "/audio/palacio-fucares/FUCARES_01_ITALIANO.mp3",
-      "de": "/audio/palacio-fucares/FUCARES_01_ALEMAN.mp3",
-      "zh": "/audio/palacio-fucares/FUCARES_01_CHINO.mp3"
+      "es": "https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_SPAIN.mp3",
+      "en": "https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_INGLES.mp3",
+      "fr": "https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_FRANCES.mp3",
+      "it": "https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_ITALIANO.mp3",
+      "de": "https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_ALEMAN.mp3",
+      "zh": "https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_CHINO.mp3"
     }
   },
   "teatro-municipal": {
@@ -112,12 +112,12 @@
     "shortDescription": "Elegante teatro del siglo XIX situado en el centro histórico de Almagro.",
     "historyTextEs": "El Teatro Municipal de Almagro, construido en el siglo XIX, es un elegante espacio escénico que complementa la oferta teatral de la ciudad. Con una arquitectura típica de los teatros de la época, acoge diversas representaciones y eventos culturales a lo largo del año.",
     "audio": {
-      "es": "/audio/teatro/es.mp3",
-      "en": "/audio/teatro/en.mp3",
-      "fr": "/audio/teatro/fr.mp3",
-      "it": "/audio/teatro/it.mp3",
-      "de": "/audio/teatro/de.mp3",
-      "zh": "/audio/teatro/zh.mp3"
+      "es": null,
+      "en": null,
+      "fr": null,
+      "it": null,
+      "de": null,
+      "zh": null
     }
   },
   "museo-encaje": {
@@ -136,12 +136,12 @@
     "shortDescription": "Un espacio dedicado a una de las tradiciones artesanales más características de Almagro.",
     "historyTextEs": "Un museo dedicado a la tradición del encaje y blonda, mostrando técnicas artesanales y piezas históricas. Almagro es famoso por su encaje de bolillos, y este museo preserva y exhibe esta importante herencia cultural y artesanal.",
     "audio": {
-      "es": "/audio/museo-encaje/AUDIO_ENCAJE_2026_SPAIN.mp3",
-      "en": "/audio/museo-encaje/AUDIO_ENCAJE_2026_INGLES.mp3",
-      "fr": "/audio/museo-encaje/AUDIO_ENCAJE_2026_FRANCES.mp3",
-      "it": "/audio/museo-encaje/AUDIO_ENCAJE_2026_ITALIANO.mp3",
-      "de": "/audio/museo-encaje/AUDIO_ENCAJE_2026_ALEMAN.mp3",
-      "zh": "/audio/museo-encaje/AUDIO_ENCAJE_2026_CHINO.mp3"
+      "es": null,
+      "en": null,
+      "fr": null,
+      "it": null,
+      "de": null,
+      "zh": null
     }
   }
 }

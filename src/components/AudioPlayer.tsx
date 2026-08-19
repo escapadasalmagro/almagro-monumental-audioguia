@@ -16,7 +16,7 @@ interface AudioPlayerProps {
   monumentName: string;
   durationSeconds: number;
   language: LanguageCode;
-  audioFileUrl?: string;
+  audioFileUrl?: string | null;
 }
 
 const STORAGE_KEY = 'almagro_audio_progress';

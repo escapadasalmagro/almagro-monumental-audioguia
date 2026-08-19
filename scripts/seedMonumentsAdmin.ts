@@ -22,12 +22,12 @@ interface MonumentDocument {
   tag?: string;
   visitDurationMinutes?: number;
   audio: {
-    es: string;
-    en: string;
-    fr: string;
-    it: string;
-    de: string;
-    zh: string;
+    es: string | null;
+    en: string | null;
+    fr: string | null;
+    it: string | null;
+    de: string | null;
+    zh: string | null;
   };
 }
 

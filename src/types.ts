@@ -35,8 +35,8 @@ export interface Monument {
   thumbnailUrl: string;
   // Original Spanish Content - The single source of truth for all texts
   originalText: OriginalSpanishContent;
-  // Audio file identifiers / paths per language
-  audioFiles: Record<LanguageCode, string>;
+  // Audio file absolute URLs per language (hosted on Hostinger: https://audioguiaalmagro.com/audio/...)
+  audioFiles: Record<LanguageCode, string | null>;
 }
 
 export type NavigationTab = 'inicio' | 'mapa';
