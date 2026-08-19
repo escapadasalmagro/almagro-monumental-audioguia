@@ -1,0 +1,111 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+@layer base {
+  :root {
+    --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-body);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1, h2, h3, h4, .font-bold-display {
+    font-family: var(--font-heading);
+    letter-spacing: -0.025em;
+  }
+}
+
+/* Custom safe-area utilities for iOS and modern Android phones */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 16px);
+}
+
+/* Custom aesthetic scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(160, 82, 45, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(160, 82, 45, 0.45);
+}
+
+/* Range input styling for audio progress bar */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]:focus {
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #A0522D;
+  box-shadow: 0 0 10px rgba(160, 82, 45, 0.5), 0 2px 4px rgba(0,0,0,0.2);
+  cursor: pointer;
+  margin-top: -5px;
+  border: 2px solid #fff;
+  transition: transform 0.1s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover,
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(1.25);
+}
+
+input[type="range"]::-moz-range-thumb {
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #A0522D;
+  box-shadow: 0 0 10px rgba(160, 82, 45, 0.5);
+  cursor: pointer;
+  border: 2px solid #fff;
+}
+
+/* Leaflet Custom Marker & Popup styling */
+.leaflet-popup-content-wrapper {
+  background: #F9F7F2;
+  color: #4A3728;
+  border-radius: 18px;
+  box-shadow: 0 10px 25px -5px rgba(74, 55, 40, 0.25);
+  border: 1px solid #E6D5B8;
+  padding: 0;
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: 1.4;
+}
+
+.leaflet-popup-tip {
+  background: #F9F7F2;
+  border: 1px solid #E6D5B8;
+}
+
+.custom-marker-icon {
+  background: transparent;
+  border: none;
+}
