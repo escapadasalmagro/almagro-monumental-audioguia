@@ -88,12 +88,12 @@
     "shortDescription": "Un destacado ejemplo de arquitectura civil almagreña del siglo XVI.",
     "historyTextEs": "La Casa Palacio de los Jedler, conocida también como Palacio de los Fúcares, es un notable ejemplo de la arquitectura civil del siglo XVI, construida por una familia de banqueros alemanes. Presenta una fachada sobria y un patio interior con elementos góticos y renacentistas.",
     "audio": {
-      "es": "https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_SPAIN.mp3",
-      "en": "https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_INGLES.mp3",
-      "fr": "https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_FRANCES.mp3",
-      "it": "https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_ITALIANO.mp3",
-      "de": "https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_ALEMAN.mp3",
-      "zh": "https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_CHINO.mp3"
+      "es": "/audio/palacio-fucares/FUCARES_01_SPAIN.mp3",
+      "en": "/audio/palacio-fucares/FUCARES_01_INGLES.mp3",
+      "fr": "/audio/palacio-fucares/FUCARES_01_FRANCES.mp3",
+      "it": "/audio/palacio-fucares/FUCARES_01_ITALIANO.mp3",
+      "de": "/audio/palacio-fucares/FUCARES_01_ALEMAN.mp3",
+      "zh": "/audio/palacio-fucares/FUCARES_01_CHINO.mp3"
     }
   },
   "teatro-municipal": {

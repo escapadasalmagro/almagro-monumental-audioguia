@@ -122,6 +122,21 @@ export default function App() {
         )}
       </div>
 
+      {/* Pie de Página Centrado, Discreto y Elegante */}
+      <footer
+        id="app-footer"
+        className="w-full mt-auto border-t border-[#E6D5B8]/80 bg-[#F9F7F2] py-7 sm:py-9 px-4 pb-24 md:pb-9 text-center"
+      >
+        <div className="max-w-4xl mx-auto space-y-1.5">
+          <p className="text-xs sm:text-sm text-[#4A3728]/90 font-medium leading-relaxed">
+            © 2026 Almagro Monumental. Todos los derechos reservados.
+          </p>
+          <p className="text-xs sm:text-sm text-[#5D4037]/75 font-normal leading-relaxed">
+            Descubre la historia y belleza de Almagro.
+          </p>
+        </div>
+      </footer>
+
       {/* Navegación Inferior Móvil (oculta automáticamente en md: >= 768px) */}
       <BottomNavigation
         activeTab={activeTab}

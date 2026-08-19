@@ -35,7 +35,7 @@ export interface Monument {
   thumbnailUrl: string;
   // Original Spanish Content - The single source of truth for all texts
   originalText: OriginalSpanishContent;
-  // Audio file absolute URLs per language (hosted on Hostinger: https://audioguiaalmagro.com/audio/...)
+  // Audio file paths per language (e.g. /audio/palacio-fucares/FUCARES_01_SPAIN.mp3)
   audioFiles: Record<LanguageCode, string | null>;
 }
 

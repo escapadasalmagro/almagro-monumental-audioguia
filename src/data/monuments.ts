@@ -28,7 +28,6 @@ export const INITIAL_MONUMENTS: Monument[] = [
       introductoryText: 'El Corral de Comedias de Almagro es un teatro histórico del siglo XVII, el único que se conserva íntegro de esa época. Declarado Monumento Nacional, sigue acogiendo representaciones teatrales, especialmente durante el Festival Internacional de Teatro Clásico de Almagro.',
       audioDurationSeconds: 195,
     },
-    // Estructura lista para URLs absolutas de Hostinger (carpeta: /audio/corral-comedias/)
     audioFiles: {
       es: null,
       en: null,
@@ -56,7 +55,6 @@ export const INITIAL_MONUMENTS: Monument[] = [
       introductoryText: 'La Iglesia de San Agustín, de estilo barroco con influencias clasicistas, fue parte del antiguo convento de los Agustinos. Destaca por su imponente fachada y su retablo mayor. Actualmente, alberga eventos culturales y exposiciones.',
       audioDurationSeconds: 170,
     },
-    // Estructura lista para URLs absolutas de Hostinger (carpeta: /audio/iglesia-san-agustin/)
     audioFiles: {
       es: null,
       en: null,
@@ -84,7 +82,6 @@ export const INITIAL_MONUMENTS: Monument[] = [
       introductoryText: 'El Claustro del Convento de la Asunción de Calatrava es una joya del Renacimiento español. Formaba parte de un importante convento fundado por la Orden de Calatrava. Sus dos plantas de galerías con arcos de medio punto sobre columnas de mármol son de gran belleza.',
       audioDurationSeconds: 185,
     },
-    // Estructura lista para URLs absolutas de Hostinger (carpeta: /audio/convento-asuncion/)
     audioFiles: {
       es: null,
       en: null,
@@ -114,14 +111,13 @@ export const INITIAL_MONUMENTS: Monument[] = [
       introductoryText: 'La Casa Palacio de los Jedler, conocida también como Palacio de los Fúcares, es un notable ejemplo de la arquitectura civil del siglo XVI, construida por una familia de banqueros alemanes. Presenta una fachada sobria y un patio interior con elementos góticos y renacentistas.',
       audioDurationSeconds: 180,
     },
-    // URLs públicas absolutas de Hostinger activas y funcionales
     audioFiles: {
-      es: 'https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_SPAIN.mp3',
-      en: 'https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_INGLES.mp3',
-      fr: 'https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_FRANCES.mp3',
-      it: 'https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_ITALIANO.mp3',
-      de: 'https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_ALEMAN.mp3',
-      zh: 'https://audioguiaalmagro.com/audio/palacio-fucares/FUCARES_01_CHINO.mp3',
+      es: '/audio/palacio-fucares/FUCARES_01_SPAIN.mp3',
+      en: '/audio/palacio-fucares/FUCARES_01_INGLES.mp3',
+      fr: '/audio/palacio-fucares/FUCARES_01_FRANCES.mp3',
+      it: '/audio/palacio-fucares/FUCARES_01_ITALIANO.mp3',
+      de: '/audio/palacio-fucares/FUCARES_01_ALEMAN.mp3',
+      zh: '/audio/palacio-fucares/FUCARES_01_CHINO.mp3',
     },
   },
   {
@@ -142,7 +138,6 @@ export const INITIAL_MONUMENTS: Monument[] = [
       introductoryText: 'El Teatro Municipal de Almagro, construido en el siglo XIX, es un elegante espacio escénico que complementa la oferta teatral de la ciudad. Con una arquitectura típica de los teatros de la época, acoge diversas representaciones y eventos culturales a lo largo del año.',
       audioDurationSeconds: 165,
     },
-    // Estructura lista para URLs absolutas de Hostinger (carpeta: /audio/teatro-municipal/)
     audioFiles: {
       es: null,
       en: null,
@@ -170,7 +165,6 @@ export const INITIAL_MONUMENTS: Monument[] = [
       introductoryText: 'Un museo dedicado a la tradición del encaje y blonda, mostrando técnicas artesanales y piezas históricas. Almagro es famoso por su encaje de bolillos, y este museo preserva y exhibe esta importante herencia cultural y artesanal.',
       audioDurationSeconds: 175,
     },
-    // Estructura lista para URLs absolutas de Hostinger (carpeta: /audio/museo-encaje/)
     audioFiles: {
       es: null,
       en: null,

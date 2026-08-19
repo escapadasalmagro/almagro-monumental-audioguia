@@ -154,6 +154,10 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
       setIsAvailable(true);
     };
 
+    const handleCanPlay = () => {
+      setIsAvailable(true);
+    };
+
     const handleTimeUpdate = () => {
       if (!isDraggingRef.current) {
         setCurrentTime(audio.currentTime);
@@ -183,6 +187,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     };
 
     audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audio.addEventListener('canplay', handleCanPlay);
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
@@ -196,6 +201,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         saveProgress(monumentId, language, audio.currentTime, audio.duration || duration);
       }
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audio.removeEventListener('canplay', handleCanPlay);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
