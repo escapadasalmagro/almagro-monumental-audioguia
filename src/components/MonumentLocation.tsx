@@ -9,7 +9,6 @@ import {
   Loader2,
   AlertCircle,
   RotateCcw,
-  CheckCircle2,
 } from 'lucide-react';
 import {
   computeWalkingRoute,
@@ -44,7 +43,7 @@ export const MonumentLocation: React.FC<MonumentLocationProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showSteps, setShowSteps] = useState<boolean>(false);
 
-  // Inicializar mapa de Leaflet centrado en el monumento
+  // Inicializar mapa de Leaflet centrado en el monumento con capa OpenStreetMap
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
@@ -70,15 +69,12 @@ export const MonumentLocation: React.FC<MonumentLocationProps> = ({
 
     mapInstanceRef.current = map;
 
-    // Capa de mapas Voyager de alto contraste
-    L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-      {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19,
-      }
-    ).addTo(map);
+    // Capa de mapas OpenStreetMap con atribución legal obligatoria
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+    }).addTo(map);
 
     L.control.zoom({ position: 'topright' }).addTo(map);
 
@@ -182,7 +178,7 @@ export const MonumentLocation: React.FC<MonumentLocationProps> = ({
   const handleGetWalkingDirections = () => {
     if (!navigator.geolocation) {
       setRouteState('error');
-      setErrorMessage('Tu navegador no soporta geolocalización.');
+      setErrorMessage('No se ha podido calcular la ruta en este momento.');
       return;
     }
 
@@ -258,7 +254,7 @@ export const MonumentLocation: React.FC<MonumentLocationProps> = ({
           }).addTo(map);
           routePolylineRef.current = mainPolyline;
 
-          // 4. Ajustar encuadre y zoom automáticamente para que se vean Origen, Ruta y Destino
+          // 4. Ajustar encuadre y zoom automáticamente para mostrar origen, recorrido y destino
           const allPoints: [number, number][] = [
             [userLat, userLng],
             ...result.coordinates,
@@ -276,15 +272,15 @@ export const MonumentLocation: React.FC<MonumentLocationProps> = ({
           setRouteState('active');
         } catch {
           setRouteState('error');
-          setErrorMessage('No hemos podido calcular la ruta en este momento.');
+          setErrorMessage('No se ha podido calcular la ruta en este momento.');
         }
       },
       (error) => {
         setRouteState('error');
         if (error.code === error.PERMISSION_DENIED) {
-          setErrorMessage('Necesitamos tu ubicación para calcular cómo llegar.');
+          setErrorMessage('Necesitamos tu ubicación para calcular la ruta hasta este monumento.');
         } else {
-          setErrorMessage('No hemos podido calcular la ruta en este momento.');
+          setErrorMessage('No se ha podido calcular la ruta en este momento.');
         }
       },
       {
@@ -300,7 +296,7 @@ export const MonumentLocation: React.FC<MonumentLocationProps> = ({
       id="seccion-ubicacion-monumento"
       className="w-full bg-white rounded-3xl p-5 sm:p-6 shadow-md border border-[#E6D5B8] flex flex-col space-y-4"
     >
-      {/* 7. Cabecera de Ubicación: Título, Nombre del Monumento y Dirección */}
+      {/* Cabecera de Ubicación: Título, Nombre del Monumento y Dirección */}
       <div className="space-y-2 border-b border-[#E6D5B8]/60 pb-3.5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
@@ -357,7 +353,7 @@ export const MonumentLocation: React.FC<MonumentLocationProps> = ({
               </div>
             </div>
 
-            {/* Botón desplegable opcional para ver los pasos */}
+            {/* Botón desplegable opcional para ver las indicaciones paso a paso */}
             {routeData.steps.length > 0 && (
               <button
                 id="btn-toggle-indicaciones"
@@ -370,7 +366,7 @@ export const MonumentLocation: React.FC<MonumentLocationProps> = ({
             )}
           </div>
 
-          {/* Lista desplegable de indicaciones paso a paso (cerrada por defecto) */}
+          {/* Lista desplegable de indicaciones paso a paso */}
           {showSteps && routeData.steps.length > 0 && (
             <div className="pt-2 border-t border-[#E6D5B8]/70 space-y-2">
               <p className="text-[11px] font-black uppercase tracking-wider text-[#A0522D]">
@@ -398,7 +394,7 @@ export const MonumentLocation: React.FC<MonumentLocationProps> = ({
         </div>
       )}
 
-      {/* 8. Mapa interactivo del monumento con ruta dibujada */}
+      {/* Mapa interactivo del monumento con capa OpenStreetMap */}
       <div className="relative w-full h-[260px] sm:h-[320px] md:h-[360px] rounded-2xl overflow-hidden border border-[#E6D5B8] shadow-xs">
         <div
           ref={mapContainerRef}

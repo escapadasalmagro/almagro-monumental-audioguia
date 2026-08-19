@@ -17,20 +17,17 @@ export const MonumentMap: React.FC<MonumentMapProps> = ({
   const markersRef = useRef<{ [id: string]: L.Marker }>({});
   const userMarkerRef = useRef<L.Marker | null>(null);
 
-  const [selectedMonument, setSelectedMonument] = useState<Monument | null>(
-    null
-  );
+  const [selectedMonument, setSelectedMonument] = useState<Monument | null>(null);
   const [isLocating, setIsLocating] = useState<boolean>(false);
   const [geoError, setGeoError] = useState<string | null>(null);
 
-  // Initialize Leaflet Map with all 6 real monument locations
+  // Inicializar mapa interactivo de Leaflet con OpenStreetMap
   useEffect(() => {
     if (!mapContainerRef.current) return;
 
-    // Center coordinates for Almagro historical center
+    // Coordenadas centrales del casco histórico de Almagro
     const almagroCenter: [number, number] = [38.8895, -3.7112];
 
-    // Create Map instance
     const map = L.map(mapContainerRef.current, {
       center: almagroCenter,
       zoom: 16,
@@ -39,19 +36,16 @@ export const MonumentMap: React.FC<MonumentMapProps> = ({
 
     mapInstanceRef.current = map;
 
-    // Add Tile Layer (OpenStreetMap / CartoDB Voyager style for high legibility)
-    L.tileLayer(
-      'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
-      {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19,
-      }
-    ).addTo(map);
+    // Capa de mapas OpenStreetMap con atribución legal obligatoria
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
+    }).addTo(map);
 
-    // Add Zoom Control to Top Right
     L.control.zoom({ position: 'topright' }).addTo(map);
 
-    // Create custom pin icons for all 6 monuments dynamically from the central data
+    // Marcadores interactivos para los 6 monumentos
     const latLngs: L.LatLngTuple[] = [];
 
     monuments.forEach((monument, index) => {
@@ -100,7 +94,7 @@ export const MonumentMap: React.FC<MonumentMapProps> = ({
       markersRef.current[monument.id] = marker;
     });
 
-    // Automatically fit map zoom and bounds so all 6 monuments are visible on screen
+    // Ajustar zoom y encuadre para que los 6 monumentos sean visibles
     if (latLngs.length > 0) {
       const bounds = L.latLngBounds(latLngs);
       map.fitBounds(bounds, {
@@ -109,14 +103,13 @@ export const MonumentMap: React.FC<MonumentMapProps> = ({
       });
     }
 
-    // Close selected card when tapping directly on map empty background
+    // Cerrar tarjeta flotante al pulsar en el mapa
     map.on('click', (e) => {
       const target = e.originalEvent.target as HTMLElement;
       if (target.closest('.custom-marker-icon')) return;
       setSelectedMonument(null);
     });
 
-    // Invalidate map size after short delay to ensure correct tile rendering
     const timer = setTimeout(() => {
       map.invalidateSize();
     }, 200);
@@ -133,7 +126,7 @@ export const MonumentMap: React.FC<MonumentMapProps> = ({
     };
   }, [monuments]);
 
-  // Geolocation Handler
+  // Manejador de geolocalización "Mi ubicación"
   const handleGetLocation = () => {
     if (!('geolocation' in navigator)) {
       setGeoError('La geolocalización no es compatible con tu navegador');
@@ -154,7 +147,7 @@ export const MonumentMap: React.FC<MonumentMapProps> = ({
             animate: true,
           });
 
-          // User position pin
+          // Marcador de posición del usuario
           if (userMarkerRef.current) {
             userMarkerRef.current.setLatLng([latitude, longitude]);
           } else {
@@ -204,13 +197,13 @@ export const MonumentMap: React.FC<MonumentMapProps> = ({
 
   return (
     <div className="relative w-full h-full flex flex-col flex-1 min-h-[500px] md:min-h-[600px] pb-20 md:pb-4">
-      {/* Map Canvas Container */}
+      {/* Contenedor del Mapa */}
       <div
         ref={mapContainerRef}
         className="w-full h-full min-h-[500px] md:min-h-[600px] flex-1 z-0 bg-[#E6D5B8]"
       />
 
-      {/* Geolocation Button "Mi ubicación" */}
+      {/* Botón de Geolocalización "Mi ubicación" */}
       <div className="absolute top-4 left-4 z-20">
         <button
           id="btn-my-location"
@@ -227,7 +220,7 @@ export const MonumentMap: React.FC<MonumentMapProps> = ({
         </button>
       </div>
 
-      {/* Geolocation Error Alert */}
+      {/* Alerta de Error de Geolocalización */}
       {geoError && (
         <div className="absolute top-16 left-4 right-4 max-w-md md:mx-auto z-30 bg-[#4A3728] text-white text-xs py-2.5 px-4 rounded-xl shadow-xl flex items-center gap-2 border border-[#C5A059]/40 animate-in fade-in duration-200">
           <AlertCircle className="w-4 h-4 text-[#C5A059] shrink-0" />
@@ -235,11 +228,11 @@ export const MonumentMap: React.FC<MonumentMapProps> = ({
         </div>
       )}
 
-      {/* Interactive Popup Card for Selected Monument */}
+      {/* Tarjeta Emergente del Monumento Seleccionado */}
       {selectedMonument && (
         <div className="absolute bottom-24 md:bottom-6 left-3 right-3 sm:left-6 sm:right-6 max-w-xl md:mx-auto z-30 animate-in slide-in-from-bottom duration-200">
           <div className="bg-white rounded-3xl p-4 sm:p-5 shadow-2xl border border-[#E6D5B8] flex flex-col gap-3 relative">
-            {/* Close button */}
+            {/* Botón cerrar */}
             <button
               onClick={() => setSelectedMonument(null)}
               className="absolute top-3 right-3 text-[#5D4037]/70 hover:text-[#4A3728] p-1 rounded-full hover:bg-[#E6D5B8]/40 transition-colors cursor-pointer"
@@ -248,7 +241,7 @@ export const MonumentMap: React.FC<MonumentMapProps> = ({
               <X className="w-4 h-4" />
             </button>
 
-            {/* Header info: Thumbnail + Title + Address */}
+            {/* Información del monumento */}
             <div className="flex items-start gap-3.5 pr-6">
               {selectedMonument.thumbnailUrl ? (
                 <img
@@ -278,7 +271,7 @@ export const MonumentMap: React.FC<MonumentMapProps> = ({
               </div>
             </div>
 
-            {/* Discover Action Button */}
+            {/* Botón Descubrir */}
             <button
               id={`btn-map-discover-${selectedMonument.id}`}
               onClick={() => onSelectMonument(selectedMonument)}
