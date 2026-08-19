@@ -5,21 +5,17 @@ import { NavigationTab } from '../types';
 interface BottomNavigationProps {
   activeTab: NavigationTab;
   onTabChange: (tab: NavigationTab) => void;
-  isMobileFramed?: boolean;
 }
 
 export const BottomNavigation: React.FC<BottomNavigationProps> = ({
   activeTab,
   onTabChange,
-  isMobileFramed = false,
 }) => {
   return (
     <nav
       id="bottom-navigation"
       aria-label="Navegación móvil"
-      className={`sticky bottom-0 left-0 right-0 z-40 bg-[#4A3728] border-t border-[#3a2a1d] shadow-2xl px-4 sm:px-6 py-2 pb-safe backdrop-blur-md bg-opacity-95 w-full ${
-        isMobileFramed ? 'block' : 'md:hidden'
-      }`}
+      className="fixed bottom-0 left-0 right-0 z-40 bg-[#4A3728]/95 backdrop-blur-md border-t border-[#3a2a1d] shadow-2xl px-4 py-2 pb-safe md:hidden w-full"
     >
       <div className="flex items-center justify-around max-w-md mx-auto">
         {/* Inicio */}

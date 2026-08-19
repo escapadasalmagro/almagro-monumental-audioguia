@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   Play,
   Pause,
@@ -7,14 +7,59 @@ import {
   Gauge,
   Headphones,
   VolumeX,
+  RotateCcw as ResetIcon,
 } from 'lucide-react';
 import { LanguageCode } from '../types';
 
 interface AudioPlayerProps {
+  monumentId: string;
   monumentName: string;
   durationSeconds: number;
   language: LanguageCode;
   audioFileUrl?: string;
+}
+
+const STORAGE_KEY = 'almagro_audio_progress';
+
+// Helper to safely read saved audio progress from localStorage
+function getSavedProgress(monumentId: string, language: string): number {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return 0;
+    const data = JSON.parse(raw);
+    const key = `${monumentId}_${language}`;
+    const time = Number(data[key]);
+    return isFinite(time) && time > 0 ? time : 0;
+  } catch {
+    return 0;
+  }
+}
+
+// Helper to safely write saved audio progress to localStorage
+function saveProgress(
+  monumentId: string,
+  language: string,
+  time: number,
+  duration: number
+) {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const data = raw ? JSON.parse(raw) : {};
+    const key = `${monumentId}_${language}`;
+
+    // Si ha llegado al 95% o más, lo consideramos completado y lo reiniciamos
+    if (duration > 0 && time >= duration * 0.95) {
+      delete data[key];
+    } else if (time > 2) {
+      data[key] = Math.floor(time);
+    } else {
+      delete data[key];
+    }
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch {
+    // Fallback silencioso si localStorage está restringido
+  }
 }
 
 export function formatTime(seconds: number): string {
@@ -26,6 +71,7 @@ export function formatTime(seconds: number): string {
 }
 
 export const AudioPlayer: React.FC<AudioPlayerProps> = ({
+  monumentId,
   monumentName,
   durationSeconds,
   language,
@@ -37,34 +83,51 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const [playbackRate, setPlaybackRate] = useState<number>(1.0);
   const [isAvailable, setIsAvailable] = useState<boolean>(true);
   const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [hasRestoredPosition, setHasRestoredPosition] = useState<boolean>(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const isDraggingRef = useRef<boolean>(false);
+  const lastSavedTimeRef = useRef<number>(0);
 
   useEffect(() => {
     isDraggingRef.current = isDragging;
   }, [isDragging]);
 
-  // Handle Track Source & Language Switch
+  const persistCurrentProgress = useCallback(() => {
+    const audio = audioRef.current;
+    if (audio && isAvailable && audio.currentTime > 0) {
+      saveProgress(monumentId, language, audio.currentTime, audio.duration || duration);
+      lastSavedTimeRef.current = audio.currentTime;
+    }
+  }, [monumentId, language, isAvailable, duration]);
+
+  // Handle Track Source, Saved Position Restoration & Language Switch
   useEffect(() => {
-    // 1. Detener el audio actual si estaba sonando
+    // 1. Guardar progreso del track anterior antes de cambiar
+    persistCurrentProgress();
+
+    // 2. Detener el audio previo
     if (audioRef.current) {
       audioRef.current.pause();
-      audioRef.current.currentTime = 0;
     }
 
-    // 2. Resetear estados al idioma / archivo nuevo
+    // 3. Obtener posición guardada para este monumento e idioma específico
+    const savedTime = getSavedProgress(monumentId, language);
+    const initialTime = savedTime > 0 ? savedTime : 0;
+
     setIsPlaying(false);
-    setCurrentTime(0);
+    setCurrentTime(initialTime);
     setDuration(durationSeconds || 180);
     setIsAvailable(true);
+    setHasRestoredPosition(initialTime > 2);
+    lastSavedTimeRef.current = initialTime;
 
     if (!audioFileUrl) {
       setIsAvailable(false);
       return;
     }
 
-    // 3. Crear y configurar elemento de audio HTML5
+    // 4. Crear y configurar elemento de audio HTML5
     const audio = new Audio();
     audio.preload = 'metadata';
     audio.src = audioFileUrl;
@@ -72,8 +135,21 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     audioRef.current = audio;
 
     const handleLoadedMetadata = () => {
-      if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
-        setDuration(audio.duration);
+      const realDuration = audio.duration;
+      if (realDuration && !isNaN(realDuration) && isFinite(realDuration)) {
+        setDuration(realDuration);
+
+        // Si la posición guardada está dentro del 95% de la duración, recuperarla
+        const saved = getSavedProgress(monumentId, language);
+        if (saved > 0 && saved < realDuration * 0.95) {
+          audio.currentTime = saved;
+          setCurrentTime(saved);
+          setHasRestoredPosition(true);
+        } else {
+          audio.currentTime = 0;
+          setCurrentTime(0);
+          setHasRestoredPosition(false);
+        }
       }
       setIsAvailable(true);
     };
@@ -85,16 +161,23 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
       if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
         setDuration(audio.duration);
       }
+
+      // Guardar periódicamente cada 3 segundos de reproducción continua
+      if (Math.abs(audio.currentTime - lastSavedTimeRef.current) >= 3) {
+        saveProgress(monumentId, language, audio.currentTime, audio.duration || duration);
+        lastSavedTimeRef.current = audio.currentTime;
+      }
     };
 
     const handleEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
+      setHasRestoredPosition(false);
       audio.currentTime = 0;
+      saveProgress(monumentId, language, 0, audio.duration || duration);
     };
 
     const handleError = () => {
-      // El archivo MP3 no está físicamente disponible
       setIsAvailable(false);
       setIsPlaying(false);
     };
@@ -104,10 +187,14 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
 
-    // 4. Ejecutar load()
+    // 5. Cargar metadatos (sin autoplay)
     audio.load();
 
     return () => {
+      // Guardar progreso al desmontar o cambiar de idioma
+      if (audio.currentTime > 0) {
+        saveProgress(monumentId, language, audio.currentTime, audio.duration || duration);
+      }
       audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('ended', handleEnded);
@@ -117,7 +204,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
       audio.load();
       audioRef.current = null;
     };
-  }, [audioFileUrl, language, durationSeconds]);
+  }, [audioFileUrl, language, monumentId, durationSeconds, persistCurrentProgress]);
 
   // Play / Pause Toggle
   const handleTogglePlay = () => {
@@ -127,6 +214,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     if (isPlaying) {
       audio.pause();
       setIsPlaying(false);
+      persistCurrentProgress();
     } else {
       audio.playbackRate = playbackRate;
       const playPromise = audio.play();
@@ -134,9 +222,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         playPromise
           .then(() => {
             setIsPlaying(true);
+            setHasRestoredPosition(false);
           })
           .catch(() => {
-            // No se pudo reproducir el MP3 (archivo aún no cargado en el servidor)
             setIsAvailable(false);
             setIsPlaying(false);
           });
@@ -151,6 +239,19 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     const newTime = Math.max(0, Math.min(audio.currentTime + deltaSeconds, duration));
     audio.currentTime = newTime;
     setCurrentTime(newTime);
+    saveProgress(monumentId, language, newTime, duration);
+    lastSavedTimeRef.current = newTime;
+  };
+
+  // Reiniciar a 00:00 manualmente
+  const handleResetToStart = () => {
+    const audio = audioRef.current;
+    if (!audio || !isAvailable) return;
+    audio.currentTime = 0;
+    setCurrentTime(0);
+    setHasRestoredPosition(false);
+    saveProgress(monumentId, language, 0, duration);
+    lastSavedTimeRef.current = 0;
   };
 
   // Cambio manual en la barra de progreso
@@ -159,6 +260,8 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     setCurrentTime(newTime);
     if (audioRef.current && isAvailable) {
       audioRef.current.currentTime = newTime;
+      saveProgress(monumentId, language, newTime, duration);
+      lastSavedTimeRef.current = newTime;
     }
   };
 
@@ -196,21 +299,35 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
           </div>
         </div>
 
-        {/* Selector de velocidad */}
-        <button
-          id="btn-audio-speed"
-          onClick={handleToggleSpeed}
-          disabled={!isAvailable}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-black transition-all ${
-            isAvailable
-              ? 'bg-[#E6D5B8]/50 hover:bg-[#E6D5B8] border-[#d8c5a4] text-[#4A3728] active:scale-95 cursor-pointer'
-              : 'bg-stone-100 border-stone-200 text-stone-400 cursor-not-allowed opacity-60'
-          }`}
-          title="Velocidad de reproducción"
-        >
-          <Gauge className="w-3 h-3 text-[#A0522D]" />
-          <span>{playbackRate}x</span>
-        </button>
+        <div className="flex items-center gap-1.5">
+          {/* Botón de reinicio a 00:00 si se ha restaurado progreso previo */}
+          {hasRestoredPosition && !isPlaying && (
+            <button
+              onClick={handleResetToStart}
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-full border border-[#E6D5B8] bg-[#F9F7F2] text-[#A0522D] text-[11px] font-bold hover:bg-[#E6D5B8]/50 transition-all cursor-pointer"
+              title="Volver a escuchar desde el inicio"
+            >
+              <ResetIcon className="w-3 h-3" />
+              <span className="hidden sm:inline">Desde inicio</span>
+            </button>
+          )}
+
+          {/* Selector de velocidad */}
+          <button
+            id="btn-audio-speed"
+            onClick={handleToggleSpeed}
+            disabled={!isAvailable}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-black transition-all ${
+              isAvailable
+                ? 'bg-[#E6D5B8]/50 hover:bg-[#E6D5B8] border-[#d8c5a4] text-[#4A3728] active:scale-95 cursor-pointer'
+                : 'bg-stone-100 border-stone-200 text-stone-400 cursor-not-allowed opacity-60'
+            }`}
+            title="Velocidad de reproducción"
+          >
+            <Gauge className="w-3 h-3 text-[#A0522D]" />
+            <span>{playbackRate}x</span>
+          </button>
+        </div>
       </div>
 
       {/* Barra de progreso y tiempos */}
@@ -317,7 +434,11 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
       <div className="text-center pt-1">
         {isAvailable ? (
           <span className="text-[10px] font-black text-[#A0522D] uppercase tracking-widest">
-            {isPlaying ? '🎧 Reproduciendo audioguía oficial...' : 'Audioguía Oficial Almagro'}
+            {isPlaying
+              ? '🎧 Reproduciendo audioguía oficial...'
+              : hasRestoredPosition
+              ? `Reanudando en ${formatTime(currentTime)} • Pulsa Play para continuar`
+              : 'Audioguía Oficial Almagro'}
           </span>
         ) : (
           <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200/80 rounded-full text-amber-900 text-xs font-bold shadow-2xs">
