@@ -24,7 +24,7 @@ export async function fetchMonumentsFromFirestore(): Promise<Monument[]> {
 
     if (!querySnapshot.empty && querySnapshot.docs.length > 0) {
       const firestoreMonuments: Monument[] = [];
-      const defaultImage = '/corral-de-comedias/corral foto audio.jpeg';
+      const defaultImage = '/images/corral-de-comedias/corral foto audio.jpeg';
 
       querySnapshot.forEach((docSnap) => {
         const data = docSnap.data();
