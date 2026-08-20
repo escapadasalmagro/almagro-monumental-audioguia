@@ -14,7 +14,7 @@ import { LanguageCode } from '../types';
 interface AudioPlayerProps {
   monumentId: string;
   monumentName: string;
-  durationSeconds: number;
+  durationSeconds?: number;
   language: LanguageCode;
   audioFileUrl?: string | null;
 }
@@ -73,13 +73,12 @@ export function formatTime(seconds: number): string {
 export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   monumentId,
   monumentName,
-  durationSeconds,
   language,
   audioFileUrl,
 }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [currentTime, setCurrentTime] = useState<number>(0);
-  const [duration, setDuration] = useState<number>(durationSeconds || 180);
+  const [duration, setDuration] = useState<number>(0);
   const [playbackRate, setPlaybackRate] = useState<number>(1.0);
   const [isAvailable, setIsAvailable] = useState<boolean>(true);
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -89,152 +88,131 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const isDraggingRef = useRef<boolean>(false);
   const lastSavedTimeRef = useRef<number>(0);
 
+  const monumentIdRef = useRef(monumentId);
+  const languageRef = useRef(language);
+
   useEffect(() => {
     isDraggingRef.current = isDragging;
   }, [isDragging]);
 
-  const persistCurrentProgress = useCallback(() => {
+  useEffect(() => {
+    monumentIdRef.current = monumentId;
+    languageRef.current = language;
+  }, [monumentId, language]);
+
+  // Único efecto que se ejecuta ÚNICAMENTE cuando cambia la URL del audio
+  useEffect(() => {
     const audio = audioRef.current;
-    if (audio && isAvailable && audio.currentTime > 0) {
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+    }
+
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setDuration(0);
+    setHasRestoredPosition(false);
+    setIsAvailable(!!audioFileUrl);
+    lastSavedTimeRef.current = 0;
+
+    return () => {
+      // Guardar progreso al desmontar o antes de cambiar de pista
+      const a = audioRef.current;
+      if (a && a.currentTime > 0) {
+        saveProgress(monumentIdRef.current, languageRef.current, a.currentTime, a.duration || 0);
+      }
+    };
+  }, [audioFileUrl]);
+
+  // Event handlers del elemento <audio> HTML5
+  const handleLoadedMetadata = () => {
+    const audio = audioRef.current;
+    if (audio && Number.isFinite(audio.duration) && !isNaN(audio.duration)) {
+      setDuration(audio.duration);
+      setIsAvailable(true);
+
+      // Restaurar progreso guardado si existe y es menor al 95%
+      const saved = getSavedProgress(monumentId, language);
+      if (saved > 0 && saved < audio.duration * 0.95) {
+        audio.currentTime = saved;
+        setCurrentTime(saved);
+        setHasRestoredPosition(true);
+      } else {
+        audio.currentTime = 0;
+        setCurrentTime(0);
+        setHasRestoredPosition(false);
+      }
+    }
+  };
+
+  const handleCanPlay = () => {
+    setIsAvailable(true);
+  };
+
+  const handleTimeUpdate = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (!isDraggingRef.current) {
+      setCurrentTime(audio.currentTime);
+    }
+    if (Number.isFinite(audio.duration) && audio.duration > 0 && duration === 0) {
+      setDuration(audio.duration);
+    }
+
+    // Guardar periódicamente cada 3 segundos de reproducción continua
+    if (Math.abs(audio.currentTime - lastSavedTimeRef.current) >= 3) {
       saveProgress(monumentId, language, audio.currentTime, audio.duration || duration);
       lastSavedTimeRef.current = audio.currentTime;
     }
-  }, [monumentId, language, isAvailable, duration]);
+  };
 
-  // Handle Track Source, Saved Position Restoration & Language Switch
-  useEffect(() => {
-    // 1. Guardar progreso del track anterior antes de cambiar
-    persistCurrentProgress();
+  const handleOnPlay = () => {
+    setIsPlaying(true);
+  };
 
-    // 2. Detener el audio previo
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-
-    // 3. Obtener posición guardada para este monumento e idioma específico
-    const savedTime = getSavedProgress(monumentId, language);
-    const initialTime = savedTime > 0 ? savedTime : 0;
-
+  const handleOnPause = () => {
     setIsPlaying(false);
-    setCurrentTime(initialTime);
-    setDuration(durationSeconds || 180);
-    setIsAvailable(true);
-    setHasRestoredPosition(initialTime > 2);
-    lastSavedTimeRef.current = initialTime;
+  };
 
-    if (!audioFileUrl) {
-      setIsAvailable(false);
-      return;
+  const handleOnEnded = () => {
+    setIsPlaying(false);
+    setCurrentTime(0);
+    setHasRestoredPosition(false);
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
     }
+    saveProgress(monumentIdRef.current, languageRef.current, 0, duration);
+  };
 
-    // 4. Crear y configurar elemento de audio HTML5
-    const audio = new Audio();
-    audio.preload = 'metadata';
-    audio.src = audioFileUrl;
-    audio.playbackRate = playbackRate;
-    audioRef.current = audio;
-
-    const handleLoadedMetadata = () => {
-      const realDuration = audio.duration;
-      if (realDuration && !isNaN(realDuration) && isFinite(realDuration)) {
-        setDuration(realDuration);
-
-        // Si la posición guardada está dentro del 95% de la duración, recuperarla
-        const saved = getSavedProgress(monumentId, language);
-        if (saved > 0 && saved < realDuration * 0.95) {
-          audio.currentTime = saved;
-          setCurrentTime(saved);
-          setHasRestoredPosition(true);
-        } else {
-          audio.currentTime = 0;
-          setCurrentTime(0);
-          setHasRestoredPosition(false);
-        }
-      }
-      setIsAvailable(true);
-    };
-
-    const handleCanPlay = () => {
-      setIsAvailable(true);
-    };
-
-    const handleTimeUpdate = () => {
-      if (!isDraggingRef.current) {
-        setCurrentTime(audio.currentTime);
-      }
-      if (audio.duration && !isNaN(audio.duration) && isFinite(audio.duration)) {
-        setDuration(audio.duration);
-      }
-
-      // Guardar periódicamente cada 3 segundos de reproducción continua
-      if (Math.abs(audio.currentTime - lastSavedTimeRef.current) >= 3) {
-        saveProgress(monumentId, language, audio.currentTime, audio.duration || duration);
-        lastSavedTimeRef.current = audio.currentTime;
-      }
-    };
-
-    const handleEnded = () => {
-      setIsPlaying(false);
-      setCurrentTime(0);
-      setHasRestoredPosition(false);
-      audio.currentTime = 0;
-      saveProgress(monumentId, language, 0, audio.duration || duration);
-    };
-
-    const handleError = () => {
-      setIsAvailable(false);
-      setIsPlaying(false);
-    };
-
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audio.addEventListener('canplay', handleCanPlay);
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('error', handleError);
-
-    // 5. Cargar metadatos (sin autoplay)
-    audio.load();
-
-    return () => {
-      // Guardar progreso al desmontar o cambiar de idioma
-      if (audio.currentTime > 0) {
-        saveProgress(monumentId, language, audio.currentTime, audio.duration || duration);
-      }
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      audio.removeEventListener('canplay', handleCanPlay);
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('error', handleError);
-      audio.pause();
-      audio.removeAttribute('src');
-      audio.load();
-      audioRef.current = null;
-    };
-  }, [audioFileUrl, language, monumentId, durationSeconds, persistCurrentProgress]);
+  const handleError = () => {
+    setIsAvailable(false);
+    setIsPlaying(false);
+  };
 
   // Play / Pause Toggle
-  const handleTogglePlay = () => {
+  const handleTogglePlay = async () => {
     const audio = audioRef.current;
-    if (!audio || !isAvailable || !audioFileUrl) return;
+    if (!audio || !audioFileUrl || !isAvailable) return;
 
-    if (isPlaying) {
-      audio.pause();
-      setIsPlaying(false);
-      persistCurrentProgress();
-    } else {
-      audio.playbackRate = playbackRate;
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true);
-            setHasRestoredPosition(false);
-          })
-          .catch(() => {
-            setIsAvailable(false);
-            setIsPlaying(false);
-          });
+    if (audio.paused) {
+      // Si el audio había finalizado o está al final, reiniciar desde el principio
+      if (audio.ended || (audio.duration && audio.currentTime >= audio.duration - 0.5)) {
+        audio.currentTime = 0;
+        setCurrentTime(0);
       }
+      audio.playbackRate = playbackRate;
+      try {
+        await audio.play();
+        setHasRestoredPosition(false);
+      } catch (error: any) {
+        // Ignorar interrupciones benignas de reproducción (AbortError / interrupted)
+        if (error?.name !== 'AbortError' && !error?.message?.includes('interrupted')) {
+          console.error('AUDIO PLAY ERROR:', error);
+        }
+      }
+    } else {
+      audio.pause();
     }
   };
 
@@ -242,10 +220,11 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   const handleSkip = (deltaSeconds: number) => {
     const audio = audioRef.current;
     if (!audio || !isAvailable) return;
-    const newTime = Math.max(0, Math.min(audio.currentTime + deltaSeconds, duration));
+    const targetDuration = audio.duration || duration || 0;
+    const newTime = Math.max(0, Math.min(audio.currentTime + deltaSeconds, targetDuration));
     audio.currentTime = newTime;
     setCurrentTime(newTime);
-    saveProgress(monumentId, language, newTime, duration);
+    saveProgress(monumentIdRef.current, languageRef.current, newTime, targetDuration);
     lastSavedTimeRef.current = newTime;
   };
 
@@ -256,7 +235,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     audio.currentTime = 0;
     setCurrentTime(0);
     setHasRestoredPosition(false);
-    saveProgress(monumentId, language, 0, duration);
+    saveProgress(monumentIdRef.current, languageRef.current, 0, duration);
     lastSavedTimeRef.current = 0;
   };
 
@@ -266,7 +245,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     setCurrentTime(newTime);
     if (audioRef.current && isAvailable) {
       audioRef.current.currentTime = newTime;
-      saveProgress(monumentId, language, newTime, duration);
+      saveProgress(monumentIdRef.current, languageRef.current, newTime, duration);
       lastSavedTimeRef.current = newTime;
     }
   };
@@ -282,13 +261,28 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     }
   };
 
-  const progressPercentage = (currentTime / (duration || 1)) * 100;
+  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <div
       id="custom-audioguide-player"
       className="w-full bg-white rounded-3xl p-5 sm:p-6 shadow-xl border border-[#E6D5B8] flex flex-col space-y-4"
     >
+      {/* Elemento de Audio HTML5 real gestionado por React */}
+      <audio
+        ref={audioRef}
+        src={audioFileUrl || undefined}
+        preload="metadata"
+        onLoadedMetadata={handleLoadedMetadata}
+        onCanPlay={handleCanPlay}
+        onTimeUpdate={handleTimeUpdate}
+        onPlay={handleOnPlay}
+        onPause={handleOnPause}
+        onEnded={handleOnEnded}
+        onError={handleError}
+        className="hidden"
+      />
+
       {/* Cabecera del Reproductor */}
       <div className="flex items-center justify-between gap-2 border-b border-[#E6D5B8]/60 pb-3">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -348,8 +342,8 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
             id="audio-progress-slider"
             type="range"
             min="0"
-            max={duration}
-            step="1"
+            max={duration || 100}
+            step="0.5"
             value={currentTime}
             disabled={!isAvailable}
             onChange={handleProgressChange}
