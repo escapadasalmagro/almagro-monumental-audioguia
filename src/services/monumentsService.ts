@@ -24,8 +24,7 @@ export async function fetchMonumentsFromFirestore(): Promise<Monument[]> {
 
     if (!querySnapshot.empty && querySnapshot.docs.length > 0) {
       const firestoreMonuments: Monument[] = [];
-      const defaultImage =
-        'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=85';
+      const defaultImage = '/images/corral-de-comedias.jpg';
 
       querySnapshot.forEach((docSnap) => {
         const data = docSnap.data();
